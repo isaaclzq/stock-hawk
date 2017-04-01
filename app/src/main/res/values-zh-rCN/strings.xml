@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">股票狙鹰</string>
+
+    <string name="dialog_title">添加股票</string>
+    <string name="dialog_hint">代号 (例如 GOOG)</string>
+    <string name="dialog_cancel">取消</string>
+    <string name="dialog_add">添加</string>
+
+    <string name="error_no_network">请检查你的网路连接</string>
+    <string name="error_no_stocks">你还没有关注任何股票。点击右下角添加你的关注</string>
+
+    <string name="toast_no_connectivity">当网络恢复，它将自动更新</string>
+    <string name="toast_stock_cannot_be_added">由于网络问题，%s 无法添加.</string>
+
+
+    <string name="stock_out_of_dated">你所关注的股票需要更新。请检查你的网络，保证网络连接</string>
+    <string name="stock_unknown_error">未知错误。</string>
+
+    <string name="button_add_stock">添加股票</string>
+
+    <string name="stock_invalid_symbol">你所输入的代号不存在。</string>
+</resources>

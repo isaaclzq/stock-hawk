@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">الأسهم، هوك</string>
+
+    <string name="dialog_title">إضافة سهم</string>
+    <string name="dialog_hint">الرمز (مثل غوغ)</string>
+    <string name="dialog_cancel">إلغاء</string>
+    <string name="dialog_add">إضافة</string>
+
+    <string name="error_no_network">لا اتصال الشبكة! يرجى التحقق من الاتصال بالشبكة.</string>
+    <string name="error_no_stocks">لم يتم إضافة أي أسهم! إضافة أول واحد الخاص بك عن طريق النقر على زر في الزاوية اليمنى الخاصة بك.</string>
+
+    <string name="toast_no_connectivity">سيتم تحديث عندما الشبكة المتاحة.</string>
+    <string name="toast_stock_cannot_be_added">%s لا يمكن أن تضاف بسبب اتصال الشبكة.</string>
+
+
+    <string name="stock_out_of_dated">ربما تكون أسهمك غير مؤرخة. يرجى التحقق من اتصال الشبكة!</string>
+    <string name="stock_unknown_error">واجه خطأ غير معروف.</string>
+
+    <string name="button_add_stock">إضافة الأسهم</string>
+
+    <string name="stock_invalid_symbol">اسم المخزون غير صالح. يرجى المراجعة.</string>
+</resources>

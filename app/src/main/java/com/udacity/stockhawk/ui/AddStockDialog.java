@@ -37,6 +37,8 @@ public class AddStockDialog extends DialogFragment {
 
         ButterKnife.bind(this, custom);
 
+        // This creates the same effect of clicking positive button
+        // by clicking "done" on the soft keyboard.
         stock.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -57,6 +59,7 @@ public class AddStockDialog extends DialogFragment {
 
         Dialog dialog = builder.create();
 
+        // show soft keyboard
         Window window = dialog.getWindow();
         if (window != null) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -66,12 +69,13 @@ public class AddStockDialog extends DialogFragment {
     }
 
     private void addStock() {
+        String symbol = stock.getText().toString();
+
+
         Activity parent = getActivity();
         if (parent instanceof MainActivity) {
             ((MainActivity) parent).addStock(stock.getText().toString());
         }
         dismissAllowingStateLoss();
     }
-
-
 }

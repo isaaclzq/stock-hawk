@@ -1,10 +1,14 @@
 package com.udacity.stockhawk.ui;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -13,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,11 +31,14 @@ import com.udacity.stockhawk.sync.QuoteSyncJob;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import timber.log.Timber;
+
+import static android.view.View.GONE;
+import static com.udacity.stockhawk.data.PrefUtils.STOCK_STATUS_INTERNET_DOWN;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener,
-        StockAdapter.StockAdapterOnClickHandler {
+        StockAdapter.StockAdapterOnClickHandler,
+        SharedPreferences.OnSharedPreferenceChangeListener{
 
     private static final int STOCK_LOADER = 0;
     @SuppressWarnings("WeakerAccess")
@@ -46,7 +54,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onClick(String symbol) {
-        Timber.d("Symbol clicked: %s", symbol);
+
+        Intent intent = new Intent(MainActivity.this, DetailStockActivity.class);
+        intent.putExtra(getString(R.string.intent_stock_key), symbol);
+        intent.putExtra(getString(R.string.intent_stock_history), adapter.getHistory(symbol));
+        startActivity(intent);
+
     }
 
     @Override
@@ -62,6 +75,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setRefreshing(true);
+
+        PrefUtils.setStockStatus(this, PrefUtils.STOCK_STATUS_OK);
+        Log.v("zizi", "change to ok");
+        PreferenceManager.getDefaultSharedPreferences(this)
+                        .registerOnSharedPreferenceChangeListener(this);
+
         onRefresh();
 
         QuoteSyncJob.initialize(this);
@@ -98,36 +117,52 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         if (!networkUp() && adapter.getItemCount() == 0) {
             swipeRefreshLayout.setRefreshing(false);
-            error.setText(getString(R.string.error_no_network));
-            error.setVisibility(View.VISIBLE);
+            PrefUtils.setStockStatus(this, PrefUtils.STOCK_STATUS_INTERNET_DOWN);
         } else if (!networkUp()) {
             swipeRefreshLayout.setRefreshing(false);
-            Toast.makeText(this, R.string.toast_no_connectivity, Toast.LENGTH_LONG).show();
+            PrefUtils.setStockStatus(this, PrefUtils.STOCK_STATUS_STOCK_OUTUPDATED);
         } else if (PrefUtils.getStocks(this).size() == 0) {
             swipeRefreshLayout.setRefreshing(false);
-            error.setText(getString(R.string.error_no_stocks));
-            error.setVisibility(View.VISIBLE);
+            PrefUtils.setStockStatus(this, PrefUtils.STOCK_STATUS_NO_STOCKS);
         } else {
-            error.setVisibility(View.GONE);
+            error.setVisibility(View.INVISIBLE);
+            PrefUtils.setStockStatus(this, PrefUtils.STOCK_STATUS_OK);
         }
     }
 
+    // onClick listener for floating button
     public void button(@SuppressWarnings("UnusedParameters") View view) {
         new AddStockDialog().show(getFragmentManager(), "StockDialogFragment");
     }
 
-    void addStock(String symbol) {
+    void addStock(final String symbol) {
         if (symbol != null && !symbol.isEmpty()) {
 
             if (networkUp()) {
-                swipeRefreshLayout.setRefreshing(true);
+                new AsyncTask<String, Void, Boolean>() {
+                    @Override
+                    protected Boolean doInBackground(String... params) {
+                        String symbol = params[0];
+                        return PrefUtils.isValidStock(symbol);
+                    }
+
+                    @Override
+                    protected void onPostExecute(Boolean isValid) {
+                        super.onPostExecute(isValid);
+                        if (!isValid) {
+                            PrefUtils.setStockStatus(MainActivity.this, PrefUtils.STOCK_STATUS_INVALID_STOCK);
+                        } else {
+                            swipeRefreshLayout.setRefreshing(true);
+                            PrefUtils.addStock(MainActivity.this, symbol);
+                            QuoteSyncJob.syncImmediately(MainActivity.this);
+                        }
+                    }
+                }.execute(symbol);
             } else {
-                String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
+//                String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
+                String message = getString(R.string.toast_stock_cannot_be_added, symbol);
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             }
-
-            PrefUtils.addStock(this, symbol);
-            QuoteSyncJob.syncImmediately(this);
         }
     }
 
@@ -144,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         swipeRefreshLayout.setRefreshing(false);
 
         if (data.getCount() != 0) {
-            error.setVisibility(View.GONE);
+            error.setVisibility(GONE);
         }
         adapter.setCursor(data);
     }
@@ -186,4 +221,55 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_stock_status_key))) {
+            updateEmptyViewOrToast();
+        }
+    }
+
+    private void updateEmptyViewOrToast() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        @PrefUtils.StockStatus int status = sp.getInt(getString(R.string.pref_stock_status_key),
+                                                        PrefUtils.STOCK_STATUS_UNKNOWN);
+
+        switch (status) {
+            case PrefUtils.STOCK_STATUS_OK:
+                error.setVisibility(GONE);
+                break;
+            case STOCK_STATUS_INTERNET_DOWN:
+                error.setText(getString(R.string.error_no_network));
+                error.setVisibility(View.VISIBLE);
+                break;
+            case PrefUtils.STOCK_STATUS_STOCK_OUTUPDATED:
+                error.setText(getString(R.string.stock_out_of_dated));
+                error.setVisibility(View.VISIBLE);
+                break;
+            case PrefUtils.STOCK_STATUS_NO_STOCKS:
+                error.setText(getString(R.string.error_no_stocks));
+                error.setVisibility(View.VISIBLE);
+                break;
+            case PrefUtils.STOCK_STATUS_UNKNOWN:
+                Toast.makeText(this,
+                        R.string.stock_unknown_error,
+                        Toast.LENGTH_SHORT).show();
+                PrefUtils.resetStockStatus(this);
+                break;
+            case PrefUtils.STOCK_STATUS_INVALID_STOCK:
+                Toast.makeText(this,
+                        R.string.stock_invalid_symbol,
+                        Toast.LENGTH_SHORT).show();
+                PrefUtils.resetStockStatus(this);
+                break;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        sp.unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
+    }
+
 }

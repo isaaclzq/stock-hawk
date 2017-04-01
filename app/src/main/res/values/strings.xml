@@ -3,22 +3,24 @@
 
     <string name="pref_stocks_initialized_key" translatable="false">initialized</string>
 
-    <string name="pref_stocks_key">stocks</string>
+    <string name="pref_stocks_key" translatable="false">stocks</string>
+    <string name="pref_stock_status_key" translatable="false">stock_status</string>
 
+    <string name="pref_display_mode_key" translatable="false">displayMode</string>
+    <string name="pref_display_mode_default" translatable="false">@string/pref_display_mode_percentage_key</string>
 
-    <string name="pref_display_mode_key">displayMode</string>
-    <string name="pref_display_mode_default">@string/pref_display_mode_percentage_key</string>
+    <string name="pref_display_mode_absolute_key" translatable="false">absolute</string>
+    <string name="pref_display_mode_percentage_key" translatable="false">percentage</string>
 
-    <string name="pref_display_mode_absolute_key">absolute</string>
-    <string name="pref_display_mode_percentage_key">percentage</string>
+    <string name="default_stocks_yahoo" translatable="false">YHOO</string>
+    <string name="default_stocks_apple" translatable="false">AAPL</string>
+    <string name="default_stocks_microsoft" translatable="false">MSFT</string>
+    <string name="default_stocks_facebook" translatable="false">FB</string>
 
-    <string name="default_stocks_yahoo">YHOO</string>
-    <string name="default_stocks_apple">AAPL</string>
-    <string name="default_stocks_microsoft">MSFT</string>
-    <string name="default_stocks_facebook">FB</string>
+    <string name="intent_stock_key" translatable="false">stock</string>
+    <string name="intent_stock_history" translatable="false">history</string>
 
-
-    <string name="action_change_units">@string/pref_display_mode_key</string>
+    <string name="action_change_units" translatable="false">@string/pref_display_mode_key</string>
 
 
     <string name="dialog_title">Add Stock</string>
@@ -26,10 +28,26 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_add">Add</string>
 
-    <string name="error_no_network">No network connectivity! Will load stock cursor when the network is available.</string>
-    <string name="error_no_stocks">No stocks added! Hit the floating action button to add one.</string>
+    <string name="error_no_network">No network connectivity! Please check your network connectivity.</string>
+    <string name="error_no_stocks">No stocks added! Add your first one by clicking the button at your right bottom corner.</string>
 
-    <string name="toast_stock_added_no_connectivity">Symbol %s added. Will refresh when network available.</string>
+    <string name="toast_stock_added_no_connectivity" translatable="false">Symbol %s added. Will refresh when network available.</string>
     <string name="toast_no_connectivity">Will refresh when network available.</string>
+    <string name="toast_stock_cannot_be_added">%s can\'t be added due to network connection.</string>
+
+
+
+    <string name="stock_out_of_dated">Your stocks are probably out-of-dated. Please check your network connectivity!</string>
+    <string name="stock_unknown_error">Encounter an unknown error.</string>
+
+
+    <string name="button_add_stock">add stock</string>
+
+    <string name="stock_invalid_symbol" translatable="false">Invalid Stock Name. Please Check.</string>
+
+
+    <!--Widget section begin-->
+    <string name="widget_title_today">Stock Today</string>
+    <!--Widget section end-->
 
 </resources>

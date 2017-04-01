@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_margin="@dimen/widget_margin"
+    android:columnCount="2"
+    android:rowCount="2"
+    android:id="@+id/widget">
+
+    <TextView
+        android:id="@+id/stock_symbol"
+        android:layout_columnSpan="2"
+        tools:text="GOOG"
+        android:layout_gravity="center"
+        android:background="@color/colorPrimary"
+        android:gravity="center_vertical" />
+
+    <TextView
+        android:id="@+id/widge_price"
+        style="@style/BidPriceTextStyle"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_columnWeight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10sp"
+        tools:text="1000.00" />
+
+    <TextView
+        android:id="@+id/widget_change"
+        style="@style/PercentChangeTextStyle"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_columnWeight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/percent_change_pill_green"
+        android:paddingStart="3dp"
+        android:paddingEnd="3dp"
+        tools:text="100%" />
+
+</GridLayout>

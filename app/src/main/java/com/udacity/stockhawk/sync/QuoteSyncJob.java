@@ -30,6 +30,8 @@ import yahoofinance.quotes.stock.StockQuote;
 
 public final class QuoteSyncJob {
 
+
+
     private static final int ONE_OFF_ID = 2;
     private static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
     private static final int PERIOD = 300000;
@@ -40,6 +42,10 @@ public final class QuoteSyncJob {
     private QuoteSyncJob() {
     }
 
+    /**
+     *
+     * @param context
+     */
     static void getQuotes(Context context) {
 
         Timber.d("Running sync job");
@@ -61,27 +67,41 @@ public final class QuoteSyncJob {
                 return;
             }
 
+            // retrieve the stock data from Yahoo Finance
             Map<String, Stock> quotes = YahooFinance.get(stockArray);
+
+            // iterate over the stockCopy set
             Iterator<String> iterator = stockCopy.iterator();
 
             Timber.d(quotes.toString());
 
+            // data that used for bulk insert
             ArrayList<ContentValues> quoteCVs = new ArrayList<>();
 
             while (iterator.hasNext()) {
+
+                // retrieve the symbol'name, such as GOOG, etc
                 String symbol = iterator.next();
 
-
+                // retrieve the stock's data
+                // note: need to check the validity of the stock
                 Stock stock = quotes.get(symbol);
+                if (null == stock) {
+                    continue;
+                }
+
                 StockQuote quote = stock.getQuote();
 
+                // adjust the form of representation.
                 float price = quote.getPrice().floatValue();
                 float change = quote.getChange().floatValue();
                 float percentChange = quote.getChangeInPercent().floatValue();
 
-                // WARNING! Don't request historical data for a stock that doesn't exist!
-                // The request will hang forever X_x
+                // 1. WARNING! Don't request historical data for a stock that doesn't exist!
+                // 2. The request will hang forever X_x
+                // 3. need to check the validity of the stock
                 List<HistoricalQuote> history = stock.getHistory(from, to, Interval.WEEKLY);
+
 
                 StringBuilder historyBuilder = new StringBuilder();
 
@@ -97,10 +117,7 @@ public final class QuoteSyncJob {
                 quoteCV.put(Contract.Quote.COLUMN_PRICE, price);
                 quoteCV.put(Contract.Quote.COLUMN_PERCENTAGE_CHANGE, percentChange);
                 quoteCV.put(Contract.Quote.COLUMN_ABSOLUTE_CHANGE, change);
-
-
                 quoteCV.put(Contract.Quote.COLUMN_HISTORY, historyBuilder.toString());
-
                 quoteCVs.add(quoteCV);
 
             }
@@ -115,6 +132,7 @@ public final class QuoteSyncJob {
 
         } catch (IOException exception) {
             Timber.e(exception, "Error fetching stock quotes");
+            PrefUtils.setStockStatus(context, PrefUtils.STOCK_STATUS_UNKNOWN);
         }
     }
 
