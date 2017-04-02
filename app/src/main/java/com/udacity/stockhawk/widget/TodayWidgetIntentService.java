@@ -6,12 +6,15 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.database.Cursor;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.ui.MainActivity;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * Created by Isaac on 4/1/17.
@@ -19,13 +22,22 @@ import com.udacity.stockhawk.ui.MainActivity;
 
 public class TodayWidgetIntentService extends IntentService {
 
+    private DecimalFormat dollarFormatWithPlus;
+    private DecimalFormat dollarFormat;
+
     public TodayWidgetIntentService() {
         super("TodayWidgetIntentService");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String symbol, price, change;
+        String symbol, price;
+        float change;
+
+        dollarFormat = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
+        dollarFormatWithPlus = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
+        dollarFormatWithPlus.setPositivePrefix("+$");
+
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, StockWidgetProvider.class));
 
@@ -50,20 +62,20 @@ public class TodayWidgetIntentService extends IntentService {
                 data.moveToFirst();
             }
 
-            symbol = data.getString(data.getColumnIndex(Contract.Quote.COLUMN_SYMBOL));
-            price = data.getString(data.getColumnIndex(Contract.Quote.COLUMN_PRICE));
-            change = data.getString(data.getColumnIndex(Contract.Quote.COLUMN_ABSOLUTE_CHANGE));
+            symbol = data.getString(Contract.Quote.POSITION_SYMBOL);
+            price = data.getString(Contract.Quote.POSITION_PRICE);
+            change = data.getFloat(Contract.Quote.POSITION_ABSOLUTE_CHANGE);
 
-            views.setTextViewText(R.id.stock_symbol, symbol);
-            views.setTextViewText(R.id.widge_price, price);
-            views.setTextViewText(R.id.widget_change, change);
-
-            if (Float.parseFloat(change) > 0) {
+            if (change > 0) {
                 views.setInt(R.id.widget_change, "setBackgroundResource", R.drawable.percent_change_pill_green);
             } else {
                 views.setInt(R.id.widget_change, "setBackgroundResource", R.drawable.percent_change_pill_red);
             }
 
+            views.setTextViewText(R.id.stock_symbol, symbol);
+            views.setTextViewText(R.id.widge_price, price);
+            views.setTextViewText(R.id.widget_change, dollarFormatWithPlus.format(change));
+            
             Intent launchIntent = new Intent(this, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, launchIntent, 0);
             views.setOnClickPendingIntent(R.id.widget, pendingIntent);
@@ -71,19 +83,5 @@ public class TodayWidgetIntentService extends IntentService {
         }
 
         data.close();
-    }
-
-    private void setupViews(RemoteViews views, Cursor cursor) {
-        if (!cursor.moveToNext()) {
-            cursor.moveToFirst();
-            setupViews(views, cursor);
-        } else {
-            views.setTextViewText(R.id.stock_symbol, cursor.getString(cursor.getColumnIndex(Contract.Quote.COLUMN_SYMBOL)));
-            views.setTextViewText(R.id.widge_price, cursor.getString(cursor.getColumnIndex(Contract.Quote.COLUMN_PRICE)));
-            views.setTextViewText(R.id.widget_change, cursor.getString(cursor.getColumnIndex(Contract.Quote.COLUMN_PERCENTAGE_CHANGE)));
-            Log.v("widget", cursor.getString(cursor.getColumnIndex(Contract.Quote.COLUMN_SYMBOL)) + " "
-                        + cursor.getString(cursor.getColumnIndex(Contract.Quote.COLUMN_PRICE)) + " "
-                        + cursor.getString(cursor.getColumnIndex(Contract.Quote.COLUMN_PERCENTAGE_CHANGE)) + " ");
-        }
     }
 }
