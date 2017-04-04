@@ -88,6 +88,11 @@ public class DetailWidgetRemoteViewsService extends RemoteViewsService {
                 views.setTextViewText(R.id.price, price);
                 views.setTextViewText(R.id.change, dollarFormatWithPlus.format(change));
 
+                final Intent fillInIntent = new Intent();
+                fillInIntent.putExtra(getString(R.string.intent_stock_key), symbol);
+                fillInIntent.putExtra(getString(R.string.intent_stock_history), data.getString(Contract.Quote.POSITION_HISTORY));
+                views.setOnClickFillInIntent(R.id.widget_detail_list_item, fillInIntent);
+
                 return views;
             }
 

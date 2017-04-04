@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -42,6 +41,9 @@ public class DetailStockActivity extends AppCompatActivity implements OnChartVal
     private LinkedList<String> mHistroyDate;
     private LineDataSet mLineDataSet;
 
+    private float LINE_WIDTH = 1.5f;
+    private float WORD_SIZE = 6f;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +54,9 @@ public class DetailStockActivity extends AppCompatActivity implements OnChartVal
         retrieveData();
 
         mLineDataSet = new LineDataSet(mHistoryList, "Stock");
+        mLineDataSet.setLineWidth(LINE_WIDTH);
+        mLineDataSet.setValueTextSize(WORD_SIZE);
+
 
         mChart.setOnChartValueSelectedListener(this);
 
@@ -65,7 +70,11 @@ public class DetailStockActivity extends AppCompatActivity implements OnChartVal
 
         mChart.setPinchZoom(true);
 
-        mChart.setBackgroundColor(Color.LTGRAY);
+        mChart.setBackgroundColor(getResources().getColor(R.color.blue_gray_700));
+        mChart.getDescription().setText(String.format("%s in 2017", mSymbol));
+        mChart.getDescription().setTextColor(Color.WHITE);
+
+
 
         LineData data = new LineData(mLineDataSet);
         data.setValueTextColor(Color.RED);
@@ -105,8 +114,6 @@ public class DetailStockActivity extends AppCompatActivity implements OnChartVal
                 mHistroyDate.offer((new SimpleDateFormat(DATEFORMAT)).format(date));
                 mHistoryList.offer(new Entry(x++, Float.parseFloat(price)));
             }
-            Log.v("history", mHistroyDate.toString());
-            Log.v("history", mHistoryList.toString());
         }
     }
 
