@@ -143,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     @Override
                     protected Boolean doInBackground(String... params) {
                         String symbol = params[0];
+                        Log.v("validity", symbol);
                         return PrefUtils.isValidStock(symbol);
                     }
 
@@ -159,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     }
                 }.execute(symbol);
             } else {
-//                String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
                 String message = getString(R.string.toast_stock_cannot_be_added, symbol);
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             }

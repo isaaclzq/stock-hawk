@@ -126,11 +126,20 @@ public final class PrefUtils {
 
     public static boolean isValidStock (String symbol){
         boolean isValid = false;
+        Stock stockPair = null;
+        if (!symbol.matches("[a-zA-Z.? ]*")) {
+            return isValid;
+        }
         try {
-            Stock stockPair = YahooFinance.get(symbol);
-            isValid = stockPair.getQuote().getPrice() != null;
+            stockPair = YahooFinance.get(symbol);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (stockPair == null) {
+            return isValid;
+        } else {
+            isValid = stockPair.getQuote().getPrice() != null;
         }
         return isValid;
     }

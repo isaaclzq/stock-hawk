@@ -48,6 +48,8 @@
 
     <!--Widget section begin-->
     <string name="widget_title_today">Stock Today</string>
+    <string name="widget_title_detail">Stock Detail</string>
+    <string name="widget_detail_empty">data unavailable</string>
     <!--Widget section end-->
 
 </resources>

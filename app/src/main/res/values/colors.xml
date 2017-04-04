@@ -9,4 +9,6 @@
     <color name="material_green_700">#00C853</color>
 
     <color name="gray_900">#212121</color>
+
+    <color name="blue_gray_900">#263238</color>
 </resources>
